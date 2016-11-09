@@ -1,0 +1,1 @@
+# Centric QR Code Generator
