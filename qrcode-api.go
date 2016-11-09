@@ -13,11 +13,13 @@ import (
 	"github.com/boombuler/barcode"
 	"github.com/boombuler/barcode/qr"
 	"github.com/gin-gonic/gin"
+	"github.com/newrelic/go-agent"
 )
 
 const ()
 
 var (
+	app        newrelic.Application
 	configFile string
 	router     *gin.Engine
 	err        error
@@ -43,6 +45,9 @@ type qrData struct {
 
 // init ...
 func init() {
+	// Setup NewRelic
+	config := newrelic.NewConfig("Centric QR Code Generator", "7543ad3ed603e883ce380d1a27019b1f807530a7")
+	app, err = newrelic.NewApplication(config)
 	pkgFile, err := os.Open("./package.json")
 	// If there is a problem with the file, err on the side of caution and
 	// bail out.
@@ -76,6 +81,8 @@ func cors() gin.HandlerFunc {
 		// 	c.AbortWithStatus(204)
 		// 	return
 		// }
+		txn := app.StartTransaction(c.Request.URL.RequestURI(), c.Writer, c.Request)
+		defer txn.End()
 		c.Next()
 	}
 } // func
