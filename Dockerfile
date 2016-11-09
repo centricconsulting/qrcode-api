@@ -10,6 +10,7 @@ RUN git clone https://github.com/centricconsulting/qrcode-api.git /go/src/github
 RUN go get github.com/gin-gonic/gin
 RUN go get github.com/boombuler/barcode
 RUN go get github.com/boombuler/barcode/qr
+RUN go get github.com/newrelic/go-agent
 
 RUN cd /go/src/github.com/centricconsulting/qrcode-api; go install
 
