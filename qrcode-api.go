@@ -68,14 +68,14 @@ func init() {
 
 func cors() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
-		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
-		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
-		c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT")
-		if c.Request.Method == "OPTIONS" {
-			c.AbortWithStatus(204)
-			return
-		}
+		// c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+		// c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
+		// c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
+		// c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT")
+		// if c.Request.Method == "OPTIONS" {
+		// 	c.AbortWithStatus(204)
+		// 	return
+		// }
 		c.Next()
 	}
 } // func
@@ -90,8 +90,9 @@ func SetupRouter() *gin.Engine {
 	router.Use(cors())
 
 	// Now set up the routes.
-	router.POST("/qrcode", MakeQR)
+	router.POST("/encode", MakeQR)
 	router.GET("/ping", PingTheAPI)
+	router.GET("/ver", GetVersion)
 
 	return router
 }
@@ -137,6 +138,11 @@ func MakeQR(c *gin.Context) {
 // PingTheAPI ...
 func PingTheAPI(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"payload": "PONG"})
+} // func
+
+// GetVersion ...
+func GetVersion(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{"payload": apiv})
 } // func
 
 //
