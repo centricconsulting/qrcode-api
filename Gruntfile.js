@@ -187,7 +187,7 @@ module.exports = function(grunt) {
     });
 
     // Checkout the "next" branch.
-    grunt.registerTask('build2demo', 'Building to demo environment...', function() {
+    grunt.registerTask('build2next', 'Building to demo environment...', function() {
         grunt.config.requires('pkg');
         // Increment the build version number.
         grunt.config.set('pkg.version', grunt.config.get('newMaintVersion'));

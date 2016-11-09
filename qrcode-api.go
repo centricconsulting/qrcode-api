@@ -2,22 +2,39 @@ package main
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"image/png"
 	"io"
+	"log"
 	"net/http"
-
-	"github.com/gin-gonic/gin"
+	"os"
 
 	"github.com/boombuler/barcode"
 	"github.com/boombuler/barcode/qr"
+	"github.com/gin-gonic/gin"
 )
 
 const ()
 
 var (
-	router *gin.Engine
+	configFile string
+	router     *gin.Engine
+	err        error
+	apiv       string
+	pkg        Package
 )
+
+// Package config holds the application configuration settings.
+type Package struct {
+	Name        string `json:"name"`
+	Version     string `json:"version"`
+	Description string `json:"description"`
+	Author      string `json:"author"`
+	Repository  string `json:"repository"`
+	License     string `json:"license"`
+	IsPrivate   bool   `json:"private"`
+}
 
 type qrData struct {
 	URL  string `json:"url" binding:"required"`
@@ -26,11 +43,30 @@ type qrData struct {
 
 // init ...
 func init() {
+	pkgFile, err := os.Open("./package.json")
+	// If there is a problem with the file, err on the side of caution and
+	// bail out.
+	if err != nil {
+		fmt.Printf("error: Unable to open package.json/%s\n", configFile, err.Error())
+		os.Exit(1)
+	}
+	defer pkgFile.Close()
 
+	// Decode the json into something we can process.  The JSON is set up to load
+	// into a map.  We could also do an array and move it to a map, but why?
+	decoder := json.NewDecoder(pkgFile)
+	err = decoder.Decode(&pkg)
+	if err != nil {
+		fmt.Printf("error: Could not decode JSON format in package.json/%s\n", err.Error())
+		os.Exit(1)
+	}
+	fmt.Printf("info: Loaded package.json from disk\n")
+
+	// Set the API version.
+	apiv = pkg.Version
 } // func
 
-// Cors ...
-func Cors() gin.HandlerFunc {
+func cors() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
 		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
@@ -51,9 +87,7 @@ func SetupRouter() *gin.Engine {
 	router = gin.New()
 
 	// Global middleware
-	//router.Use(gin.Logger())
-	//router.Use(gin.Recovery())
-	router.Use(Cors())
+	router.Use(cors())
 
 	// Now set up the routes.
 	router.POST("/qrcode", MakeQR)
@@ -109,6 +143,6 @@ func PingTheAPI(c *gin.Context) {
 func main() {
 	// Start the server.
 	router := SetupRouter()
-	fmt.Printf("Starting...\n")
+	log.Printf("info: Starting Centric QR Code Generator version %s...\n", apiv)
 	router.Run(":3022")
 } // main

@@ -1,6 +1,6 @@
 {
   "name": "Centric QR Code Generator",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Service that generates QR Codes.",
   "author": "William Klos",
   "repository": "",
@@ -11,8 +11,9 @@
   },
   "devDependencies": {
     "grunt": "^1.0.1",
-    "grunt-exec": "^1.0.0",
-    "grunt-git": "^1.0.0",
-    "grunt-gitinfo": "^0.1.8"
+    "grunt-exec": "^1.0.1",
+    "grunt-git": "^1.0.1",
+    "grunt-gitinfo": "^0.1.8",
+    "grunt-http": "^2.2.0"
   }
 }
