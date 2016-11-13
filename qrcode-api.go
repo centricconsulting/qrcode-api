@@ -157,5 +157,5 @@ func main() {
 	// Start the server.
 	router := SetupRouter()
 	log.Printf("info: Starting Centric QR Code Generator version %s...\n", apiv)
-	router.Run(":3022")
+	router.RunTLS(":3022", "./cert/server.pem", "./cert/server.key")
 } // main
