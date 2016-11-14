@@ -19,12 +19,12 @@ import (
 const ()
 
 var (
-	app        newrelic.Application
-	configFile string
-	router     *gin.Engine
-	err        error
-	apiv       string
-	pkg        Package
+	app               newrelic.Application
+	configFile        string
+	router, routerTLS *gin.Engine
+	err               error
+	apiv              string
+	pkg               Package
 )
 
 // Package config holds the application configuration settings.
@@ -88,20 +88,26 @@ func cors() gin.HandlerFunc {
 } // func
 
 // SetupRouter ...
-func SetupRouter() *gin.Engine {
+func SetupRouter() (*gin.Engine, *gin.Engine) {
 	// Set up the router.
 	gin.SetMode(gin.ReleaseMode)
 	router = gin.New()
+	routerTLS = gin.New()
 
 	// Global middleware
 	router.Use(cors())
+	routerTLS.Use(cors())
 
 	// Now set up the routes.
 	router.POST("/encode", MakeQR)
 	router.GET("/ping", PingTheAPI)
 	router.GET("/ver", GetVersion)
 
-	return router
+	routerTLS.POST("/encode", MakeQR)
+	routerTLS.GET("/ping", PingTheAPI)
+	routerTLS.GET("/ver", GetVersion)
+
+	return router, routerTLS
 }
 
 // MakeQR ...
@@ -155,7 +161,15 @@ func GetVersion(c *gin.Context) {
 //
 func main() {
 	// Start the server.
-	router := SetupRouter()
+	router, routerTLS := SetupRouter()
 	log.Printf("info: Starting Centric QR Code Generator version %s...\n", apiv)
-	router.RunTLS(":3022", "./cert/server.pem", "./cert/server.key")
+	// Run an unsecured server too.
+	go func() {
+		log.Printf("info: Starting HTTP server...")
+		router.Run(":3023")
+	}()
+	// Run a secured server.
+	log.Printf("info: Starting HTTPS server...")
+	routerTLS.RunTLS(":3022", "./cert/server.pem", "./cert/server.key")
+
 } // main
