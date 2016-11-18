@@ -170,6 +170,9 @@ func main() {
 	}()
 	// Run a secured server.
 	log.Printf("info: Starting HTTPS server...")
-	routerTLS.RunTLS(":3022", "./cert/server.pem", "./cert/server.key")
-
+	//routerTLS.RunTLS(":3022", "./cert/server.pem", "./cert/server.key")
+	err = routerTLS.RunTLS(":3022", "./cert/centri-cert.pem", "./cert/centri-key.pem")
+	if err != nil {
+		log.Printf("error: %s", err.Error())
+	}
 } // main
